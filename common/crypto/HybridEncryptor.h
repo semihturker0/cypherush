@@ -1,0 +1,28 @@
+#pragma once
+
+#include <cstdint>
+#include <vector>
+
+#include "crypto/IEncryptor.h"
+#include "crypto/RSAEncryptor.h"
+
+namespace cypherush {
+
+// Hybrid encryption: a fresh AES-256-GCM data key per message, itself
+// wrapped with RSA-OAEP. Wire format produced by encrypt():
+//   [4-byte big-endian uint32: rsaEncryptedKey length]
+//   [rsaEncryptedKey]
+//   [aesOutput == IV || ciphertext || tag]
+class HybridEncryptor : public IEncryptor {
+public:
+    explicit HybridEncryptor(RSAEncryptor rsa);
+    ~HybridEncryptor() override;
+
+    std::vector<uint8_t> encrypt(const std::vector<uint8_t>& data) override;
+    std::vector<uint8_t> decrypt(const std::vector<uint8_t>& data) override;
+
+private:
+    RSAEncryptor m_rsaEncryptor;
+};
+
+} // namespace cypherush

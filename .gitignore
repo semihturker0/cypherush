@@ -1,0 +1,35 @@
+# Build artefaktları
+build/
+out/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*.exe
+*.o
+*.obj
+*.a
+*.so
+*.dll
+
+# Qt
+*.user
+*.user.*
+moc_*
+ui_*.h
+qrc_*
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Runtime verileri (HASSAS - public repo'ya kesinlikle gitmemeli)
+keys/
+test_keys_*/
+*.dat
+users.dat
+messages.dat
+
+# Sistem
+.DS_Store
+Thumbs.db

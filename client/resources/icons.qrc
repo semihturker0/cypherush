@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/icons">
+    <file alias="cypherush.svg">icons/cypherush.svg</file>
+  </qresource>
+</RCC>
