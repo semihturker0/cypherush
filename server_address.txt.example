@@ -1,0 +1,7 @@
+# Bu dosyayi 'server_address.txt' olarak kopyala ve asagiya kendi
+# server IP'ni yaz. server_address.txt gitignored - public repo'ya
+# gitmez. Build sonrasi client executable'in yanina (build/bin/
+# icine) yerlestir.
+#
+# Ornek icerik (sadece IP, baska hicbir sey):
+# 165.232.45.67

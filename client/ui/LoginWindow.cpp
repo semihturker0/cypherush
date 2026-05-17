@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include <QCoreApplication>
+#include <QFile>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -118,7 +120,22 @@ LoginWindow::LoginWindow(std::shared_ptr<AuthenticationService> auth,
     advLayout->setContentsMargins(0, 4, 0, 0);
     m_serverEdit = new QLineEdit(m_advancedSettingsWidget);
     m_serverEdit->setPlaceholderText(QStringLiteral("127.0.0.1"));
-    m_serverEdit->setText(QStringLiteral("127.0.0.1"));
+
+    QString defaultServer = QStringLiteral("127.0.0.1");
+    const QString configPath =
+        QCoreApplication::applicationDirPath() +
+        QStringLiteral("/server_address.txt");
+    QFile configFile(configPath);
+    if (configFile.exists() &&
+        configFile.open(QIODevice::ReadOnly)) {
+        const QString line =
+            QString::fromUtf8(configFile.readAll()).trimmed();
+        if (!line.isEmpty()) {
+            defaultServer = line;
+        }
+        configFile.close();
+    }
+    m_serverEdit->setText(defaultServer);
     advLayout->addWidget(m_serverEdit);
     m_advancedSettingsWidget->setVisible(false);
     cardLayout->addWidget(m_advancedSettingsWidget);

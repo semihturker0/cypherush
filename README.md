@@ -55,3 +55,11 @@ Start the server first, then launch two clients to chat between them:
 # Terminal 3 — second client
 ./build/bin/cypherush_client
 ```
+
+## Custom Server Address
+
+Copy `server_address.txt.example` next to the client executable as
+`server_address.txt` with your server IP (a single line, IP only). The
+login window pre-fills the server field from it. Defaults to `127.0.0.1`
+if the file is missing. `server_address.txt` is gitignored and never
+committed.

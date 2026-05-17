@@ -30,6 +30,10 @@ test_keys_*/
 users.dat
 messages.dat
 
+# Yerel sunucu adresi (HASSAS - public'e gitmemeli)
+server_address.txt
+**/server_address.txt
+
 # Sistem
 .DS_Store
 Thumbs.db
