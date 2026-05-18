@@ -1,71 +1,182 @@
 # Cypherush
 
-**End-to-End Encrypted Messaging**
+> Speak in cipher, hear in hush, deliver in rush.
 
-> _"Speak in cipher, hear in hush."_
+![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white)
+![Qt 6](https://img.shields.io/badge/Qt-6-41CD52?logo=qt&logoColor=white)
+![Crypto++](https://img.shields.io/badge/Crypto%2B%2B-AES%20%7C%20RSA%20%7C%20PBKDF2-8A2BE2)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-555555)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-## What's in a name?
+## About
 
-**Cypherush** is a three-layered word blend:
+Cypherush is an end-to-end encrypted messaging application. Messages are
+encrypted on the sender's machine and decrypted only on the recipient's
+machine — the relay server never has access to plaintext or private keys.
+It pairs a hybrid RSA-2048 + AES-256-GCM cryptosystem with a modern Qt
+desktop client and a lightweight TCP routing server.
 
-- **Cypher** — _cipher_, the encryption at the core of every message.
-- **Hush** — _silence_, the privacy guaranteed by end-to-end encryption.
-- **Rush** — _flow_, the fast, real-time delivery of messages.
+The project was built as an Object-Oriented Programming semester project,
+with the goal of putting cryptography into practice rather than treating
+it as a black box. The name is a three-way blend: **Ciph**er (the
+encryption at its core) + **hush** (the silence of true privacy) +
+**rush** (fast, real-time delivery).
 
-Together: secrets that travel quickly and stay quiet.
+## Features
 
-## Technologies
+- 🔒 End-to-end encryption (hybrid RSA-2048 + AES-256-GCM)
+- 🔑 PBKDF2 password hashing (100k iterations, salted)
+- 💾 Encrypted persistent storage (AES-256-GCM on user data)
+- 🎨 Modern UI with a custom splash animation
+- 🌐 TCP client–server architecture (Qt Network)
+- 🔐 Server address hidden from end users
+- ⚡ Real-time message routing through a trusted-zero server
 
-- **C++17**
-- **Qt 6** (Core, Network, Widgets)
-- **Crypto++** (AES, RSA, hashing)
-- **CMake** + **Ninja**
-- **MSYS2 / MinGW** (UCRT64 toolchain) on Windows
+## Screenshots
+
+| Splash | Login | Chat |
+| ------ | ----- | ---- |
+| ![Splash](docs/screenshots/splash.png) | ![Login](docs/screenshots/login.png) | ![Chat](docs/screenshots/chat.png) |
 
 ## Architecture
 
-| Component           | Description                                            |
-| ------------------- | ------------------------------------------------------ |
-| `cypherush_common`  | Shared static library: models, crypto, data, network.  |
-| `cypherush_server`  | Headless relay server (`QCoreApplication`, `QTcpServer`). |
-| `cypherush_client`  | Desktop GUI client (`QApplication`, `QTcpSocket`).     |
+```mermaid
+graph TD
+    ClientA["Client A"] -->|"encrypted msg"| Server["Server"]
+    ClientB["Client B"] -->|"encrypted msg"| Server
+    Server -.->|"routes ciphertext"| ClientB
+    Server -.->|"routes ciphertext"| ClientA
+    ClientA -.->|"RSA-2048 keypair"| KeystoreA["Local keystore A"]
+    ClientB -.->|"RSA-2048 keypair"| KeystoreB["Local keystore B"]
+```
 
-## Build
+The server only sees ciphertext. Private keys never leave the client.
+Even a fully compromised server cannot read messages.
 
-From the project root:
+## Tech Stack
 
-```sh
+- C++17
+- Qt 6 (Widgets, Network)
+- Crypto++ (RSA, AES, PBKDF2)
+- CMake + Ninja build system
+- Tested on: Windows 11 (MSYS2 UCRT64), Ubuntu 24.04
+
+## Quick Start
+
+### Prerequisites
+
+- **Windows:** MSYS2 UCRT64 environment
+- **Linux:** `build-essential`, `cmake`, `ninja`, `qt6-base-dev`,
+  `libcrypto++-dev`
+
+### Build (Windows / MSYS2 UCRT64)
+
+```bash
+git clone https://github.com/semihturker0/cypherush.git
+cd cypherush
 cmake -B build -G Ninja
 cmake --build build
 ```
 
-All executables are written to `build/bin/`.
+### Build (Linux)
 
-## Run
+```bash
+sudo apt install -y build-essential cmake ninja-build qt6-base-dev libcrypto++-dev
+git clone https://github.com/semihturker0/cypherush.git
+cd cypherush
+cmake -B build -G Ninja
+cmake --build build
+```
 
-Start the server first, then launch two clients to chat between them:
+### Configure Server Address
 
-```sh
-# Terminal 1 — server
+The server address is stored in an obfuscated config file. After
+building, set it once via:
+
+```bash
+./build/bin/cypherush_client --setup <SERVER_IP>
+```
+
+This writes to `%APPDATA%/Cypherush/config.dat` (Windows) or
+`~/.local/share/Cypherush/config.dat` (Linux). Defaults to `127.0.0.1`
+if no config exists.
+
+### Run
+
+```bash
+# Server
 ./build/bin/cypherush_server
 
-# Terminal 2 — first client
-./build/bin/cypherush_client
-
-# Terminal 3 — second client
+# Client (separate terminal)
 ./build/bin/cypherush_client
 ```
 
-## Custom Server Address
+## Project Structure
 
-Server address is configured via command-line setup. After building, run
-once:
-
-```sh
-cypherush_client.exe --setup <SERVER_IP>
+```
+cypherush/
+├── common/              Shared between client and server
+│   ├── crypto/          IEncryptor, AES, RSA, Hybrid, KeyManager, PasswordHasher
+│   ├── data/            IRepository<T>, encrypted file storage
+│   ├── exceptions/      Custom exception hierarchy (14 classes)
+│   ├── models/          User, Message, Contact, KeyPair
+│   └── network/         NetworkMessage, MessageProtocol
+├── server/              ChatServer, server main
+├── client/              ChatClient, services, UI
+│   ├── services/        AuthenticationService, MessagingService, ServerConfig
+│   └── ui/              SplashScreen, LoginWindow, MainChatWindow
+└── docs/screenshots/    README assets
 ```
 
-This writes an obfuscated config to `%APPDATA%/Cypherush/config.dat`
-(Linux: `~/.local/share/Cypherush/config.dat`). The address is hidden
-from end users; not visible in the UI. Defaults to `127.0.0.1` if no
-config exists.
+## Security Notes
+
+### What is protected
+
+- **Message content** — end-to-end encrypted; the server cannot read it
+- **Stored user data** — AES-256-GCM at rest
+- **Passwords** — PBKDF2-HMAC-SHA256, 100k iterations, 16-byte salt
+- **Private keys** — PBKDF2-encrypted with the user's password
+
+### Demo limitations (transparency for academic review)
+
+- **Storage key:** currently hardcoded for the demo. Production should
+  derive it via PBKDF2 from a master password.
+- **Server IP obfuscation:** XOR-based; protects against casual
+  inspection only, not cryptographically.
+- **No certificate validation:** the TCP connection is not TLS-wrapped.
+  Future work includes mutual TLS for transport-level confidentiality.
+
+## Roadmap
+
+Future work (post-submission patches):
+
+- 💾 Persistent message history (per-user, locally encrypted)
+- 👥 Persistent contact list
+- 🔄 Auto-update system
+- 📱 Multi-device key sync
+- 🔐 Master-password-derived storage key
+- 🌐 TLS-wrapped transport
+- 📦 Inno Setup Windows installer (in progress)
+
+## Academic Context
+
+Cypherush was developed as a semester project for an Object-Oriented
+Programming course. It demonstrates OOP design principles through a
+real-world cryptography application:
+
+- **Encapsulation:** private keys, hash internals, storage keys
+- **Inheritance:** `IEncryptor` → `{AES, RSA, Hybrid}`; `AppException` →
+  14 specialized exception classes
+- **Polymorphism:** Strategy pattern in the crypto layer;
+  `IRepository<T>` template
+- **Modularity:** 6-layer architecture (crypto, data, network, services,
+  server, client UI)
+- **SOLID and design patterns:** Strategy, Repository, Factory hints
+
+## License
+
+MIT License. See [LICENSE](LICENSE) file.
+
+---
+
+*Speak in cipher. Hear in hush. Deliver in rush.*
