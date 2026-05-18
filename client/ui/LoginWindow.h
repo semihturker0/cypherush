@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 
+#include <QString>
 #include <QWidget>
 
 #include "ChatClient.h"
@@ -47,16 +48,14 @@ private:
     std::shared_ptr<AuthenticationService> m_authService;
     std::shared_ptr<ChatClient> m_client;
 
-    QLineEdit* m_serverEdit = nullptr;
     QLineEdit* m_usernameEdit = nullptr;
     QLineEdit* m_passwordEdit = nullptr;
     QPushButton* m_loginTab = nullptr;
     QPushButton* m_registerTab = nullptr;
     QPushButton* m_submitButton = nullptr;
     QLabel* m_statusLabel = nullptr;
-    QWidget* m_advancedSettingsWidget = nullptr;
-    QPushButton* m_advancedToggle = nullptr;
 
+    QString m_serverAddress;
     Mode m_mode = Mode::Login;
     bool m_pendingAuth = false;
 };

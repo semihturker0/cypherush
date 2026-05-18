@@ -2,8 +2,6 @@
 
 #include <utility>
 
-#include <QCoreApplication>
-#include <QFile>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -11,6 +9,8 @@
 #include <QPushButton>
 #include <QStyle>
 #include <QVBoxLayout>
+
+#include "services/ServerConfig.h"
 
 namespace cypherush {
 
@@ -102,51 +102,9 @@ LoginWindow::LoginWindow(std::shared_ptr<AuthenticationService> auth,
     m_submitButton->setAutoDefault(true);
     cardLayout->addWidget(m_submitButton);
 
-    cardLayout->addSpacing(8);
-
-    m_advancedToggle =
-        new QPushButton(QStringLiteral("Gelismis ayarlar  v"), card);
-    m_advancedToggle->setCursor(Qt::PointingHandCursor);
-    m_advancedToggle->setFlat(true);
-    m_advancedToggle->setStyleSheet(
-        "QPushButton { background: transparent; border: none; "
-        "color: #A6ADC8; font-size: 11px; padding: 2px; "
-        "text-align: left; }"
-        "QPushButton:hover { color: #CBA6F7; }");
-    cardLayout->addWidget(m_advancedToggle);
-
-    m_advancedSettingsWidget = new QWidget(card);
-    auto* advLayout = new QVBoxLayout(m_advancedSettingsWidget);
-    advLayout->setContentsMargins(0, 4, 0, 0);
-    m_serverEdit = new QLineEdit(m_advancedSettingsWidget);
-    m_serverEdit->setPlaceholderText(QStringLiteral("127.0.0.1"));
-
-    QString defaultServer = QStringLiteral("127.0.0.1");
-    const QString configPath =
-        QCoreApplication::applicationDirPath() +
-        QStringLiteral("/server_address.txt");
-    QFile configFile(configPath);
-    if (configFile.exists() &&
-        configFile.open(QIODevice::ReadOnly)) {
-        const QString line =
-            QString::fromUtf8(configFile.readAll()).trimmed();
-        if (!line.isEmpty()) {
-            defaultServer = line;
-        }
-        configFile.close();
-    }
-    m_serverEdit->setText(defaultServer);
-    advLayout->addWidget(m_serverEdit);
-    m_advancedSettingsWidget->setVisible(false);
-    cardLayout->addWidget(m_advancedSettingsWidget);
-
-    connect(m_advancedToggle, &QPushButton::clicked, this, [this]() {
-        const bool show = !m_advancedSettingsWidget->isVisible();
-        m_advancedSettingsWidget->setVisible(show);
-        m_advancedToggle->setText(
-            show ? QStringLiteral("Gelismis ayarlar  ^")
-                 : QStringLiteral("Gelismis ayarlar  v"));
-    });
+    // Server address is resolved from the hidden obfuscated config,
+    // never exposed in the UI.
+    m_serverAddress = ServerConfig::loadServerAddress();
 
     auto* cardWrap = new QHBoxLayout();
     cardWrap->addStretch();
@@ -167,10 +125,7 @@ LoginWindow::LoginWindow(std::shared_ptr<AuthenticationService> auth,
             &LoginWindow::onSubmit);
     connect(m_passwordEdit, &QLineEdit::returnPressed, this,
             &LoginWindow::onSubmit);
-    connect(m_serverEdit, &QLineEdit::returnPressed, this,
-            &LoginWindow::onSubmit);
 
-    m_serverEdit->setFocusPolicy(Qt::StrongFocus);
     m_usernameEdit->setFocusPolicy(Qt::StrongFocus);
     m_passwordEdit->setFocusPolicy(Qt::StrongFocus);
     m_submitButton->setFocusPolicy(Qt::StrongFocus);
@@ -239,7 +194,7 @@ void LoginWindow::onSubmit() {
     m_pendingAuth = true;
 
     if (!m_client->isConnected()) {
-        m_client->setHost(m_serverEdit->text().trimmed().toStdString());
+        m_client->setHost(m_serverAddress.trimmed().toStdString());
         m_client->setPort(55555);
         m_authService->connectToServer();
     } else {

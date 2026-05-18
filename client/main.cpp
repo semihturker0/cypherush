@@ -14,13 +14,16 @@
 #include <QIcon>
 #include <QMainWindow>
 #include <QPropertyAnimation>
+#include <QRegularExpression>
 #include <QStackedWidget>
+#include <QStringList>
 #include <QTextStream>
 #include <QTimer>
 
 #include "ChatClient.h"
 #include "services/AuthenticationService.h"
 #include "services/MessagingService.h"
+#include "services/ServerConfig.h"
 #include "ui/LoginWindow.h"
 #include "ui/MainChatWindow.h"
 #include "ui/SplashScreen.h"
@@ -212,9 +215,29 @@ int runE2ETest() {
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
+    QCoreApplication::setApplicationName(QStringLiteral("Cypherush"));
 
     const QIcon appIcon(QStringLiteral(":/icons/cypherush.svg"));
     app.setWindowIcon(appIcon);
+
+    const QStringList args = app.arguments();
+    if (args.size() >= 3 && args[1] == QStringLiteral("--setup")) {
+        const QString ip = args[2].trimmed();
+        const QRegularExpression ipPattern(
+            QStringLiteral(R"(^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$)"));
+        if (!ipPattern.match(ip).hasMatch()) {
+            QTextStream(stderr) << "Invalid IP: " << ip << "\n";
+            return 1;
+        }
+        if (cypherush::ServerConfig::saveServerAddress(ip)) {
+            QTextStream(stdout)
+                << "Config saved to: "
+                << cypherush::ServerConfig::configFilePath() << "\n";
+            return 0;
+        }
+        QTextStream(stderr) << "Failed to save config\n";
+        return 1;
+    }
 
     for (int i = 1; i < argc; ++i) {
         if (std::string(argv[i]) == "--test") {

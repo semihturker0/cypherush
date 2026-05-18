@@ -5,6 +5,7 @@ add_executable(cypherush_client
     ChatClient.cpp
     services/AuthenticationService.cpp
     services/MessagingService.cpp
+    services/ServerConfig.cpp
     ui/SplashScreen.cpp
     ui/LoginWindow.cpp
     ui/MainChatWindow.cpp
@@ -22,3 +23,7 @@ target_link_libraries(cypherush_client
         Qt6::Network
         Qt6::Widgets
 )
+
+if(WIN32)
+    target_link_libraries(cypherush_client PRIVATE dwmapi)
+endif()

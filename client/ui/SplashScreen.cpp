@@ -12,6 +12,12 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
+#ifdef Q_OS_WIN
+  #include <windows.h>
+  #include <dwmapi.h>
+  #pragma comment(lib, "dwmapi.lib")
+#endif
+
 namespace cypherush {
 
 namespace {
@@ -115,6 +121,24 @@ SplashScreen::SplashScreen(QWidget* parent)
         emit animationFinished();
         close();
     });
+
+#ifdef Q_OS_WIN
+    // Suppress Windows DWM compositor shadow/glow/transitions so the
+    // splash is genuinely borderless against the desktop.
+    HWND hwnd = reinterpret_cast<HWND>(winId());
+
+    MARGINS margins = {0, 0, 0, 0};
+    DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+    BOOL disableTransitions = TRUE;
+    DwmSetWindowAttribute(hwnd, DWMWA_TRANSITIONS_FORCEDISABLED,
+                          &disableTransitions,
+                          sizeof(disableTransitions));
+
+    DWMNCRENDERINGPOLICY ncrp = DWMNCRP_DISABLED;
+    DwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, &ncrp,
+                          sizeof(ncrp));
+#endif
 }
 
 void SplashScreen::paintEvent(QPaintEvent* /*event*/) {
