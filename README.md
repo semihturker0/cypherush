@@ -2,6 +2,12 @@
 
 > Speak in cipher, hear in hush, deliver in rush.
 
+> ⚠️ **Copyright (c) 2026 semihturker0. All Rights Reserved.**
+> This is proprietary software. Source code is publicly visible for
+> portfolio and academic review purposes only. **NO LICENSE** is granted
+> for use, modification, or redistribution. See [LICENSE](LICENSE) for
+> full terms.
+
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white)
 ![Qt 6](https://img.shields.io/badge/Qt-6-41CD52?logo=qt&logoColor=white)
 ![Crypto++](https://img.shields.io/badge/Crypto%2B%2B-AES%20%7C%20RSA%20%7C%20PBKDF2-8A2BE2)
@@ -173,9 +179,16 @@ real-world cryptography application:
   server, client UI)
 - **SOLID and design patterns:** Strategy, Repository, Factory hints
 
-## License
+### License
 
-MIT License. See [LICENSE](LICENSE) file.
+This project is proprietary software. All rights reserved.
+
+Copyright (c) 2026 semihturker0. This source code is published for
+portfolio and educational viewing only. Copying, modifying, or
+redistributing this code in any form requires explicit written
+permission from the author.
+
+See [LICENSE](LICENSE) for full terms.
 
 ---
 

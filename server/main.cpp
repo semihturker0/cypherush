@@ -1,3 +1,11 @@
+// ============================================================
+// Cypherush - End-to-end encrypted messaging
+// Copyright (c) 2026 semihturker0. All Rights Reserved.
+//
+// This file is proprietary. Unauthorized copying, modification,
+// or distribution is prohibited. See LICENSE in the project root
+// for full terms.
+// ============================================================
 // Cypherush server entry point.
 // Run with "--test" to execute the in-process self-test suite instead.
 

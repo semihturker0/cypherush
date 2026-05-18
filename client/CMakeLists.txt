@@ -1,3 +1,5 @@
+# Cypherush - Copyright (c) 2026 semihturker0. All Rights Reserved.
+# Proprietary software. See LICENSE for terms.
 qt_add_resources(CYPHERUSH_RESOURCES resources/icons.qrc)
 
 add_executable(cypherush_client

@@ -1,3 +1,5 @@
+# Cypherush - Copyright (c) 2026 semihturker0. All Rights Reserved.
+# Proprietary software. See LICENSE for terms.
 cmake_minimum_required(VERSION 3.20)
 
 project(Cypherush

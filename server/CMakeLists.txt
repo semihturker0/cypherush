@@ -1,3 +1,5 @@
+# Cypherush - Copyright (c) 2026 semihturker0. All Rights Reserved.
+# Proprietary software. See LICENSE for terms.
 add_executable(cypherush_server
     main.cpp
     ChatServer.cpp
