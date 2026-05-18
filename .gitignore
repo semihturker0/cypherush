@@ -30,6 +30,11 @@ test_keys_*/
 users.dat
 messages.dat
 
+# Installer build artifacts
+installer/staging/
+installer/output/
+*.bak
+
 # Sistem
 .DS_Store
 Thumbs.db
