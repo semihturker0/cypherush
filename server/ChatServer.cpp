@@ -9,6 +9,7 @@
 #include "ChatServer.h"
 
 #include <QDateTime>
+#include <QDebug>
 #include <QHostAddress>
 #include <QJsonDocument>
 #include <QLoggingCategory>
@@ -260,6 +261,38 @@ void ChatServer::handleSendMessage(QTcpSocket* socket,
     Message message(messageId, sender->getId(), recipient->getId(),
                     timestamp, {}, encryptedContent, {});
     m_messageRepo->save(message);
+
+    // === DEMO LOG: proof that the server only ever sees ciphertext ===
+    {
+        const QByteArray cipher(
+            reinterpret_cast<const char*>(encryptedContent.data()),
+            static_cast<int>(encryptedContent.size()));
+        const QByteArray cipherPreview = cipher.left(32);
+        QString hexDump;
+        for (int i = 0; i < cipherPreview.size(); ++i) {
+            hexDump += QString("%1 ")
+                           .arg(static_cast<uint8_t>(cipherPreview[i]), 2,
+                                16, QChar('0'))
+                           .toUpper();
+            if ((i + 1) % 16 == 0 && i < cipherPreview.size() - 1) {
+                hexDump += "\n                       ";
+            }
+        }
+
+        qInfo().noquote() << "";
+        qInfo().noquote()
+            << QString("[E2E DEMO] %1 -> %2 (%3 bytes ciphertext)")
+                   .arg(QString::fromStdString(senderUsername))
+                   .arg(QString::fromStdString(recipientUsername))
+                   .arg(encryptedContent.size());
+        qInfo().noquote()
+            << "[E2E DEMO] Server SADECE bu byte'lari gorur:";
+        qInfo().noquote() << "                       " + hexDump;
+        qInfo().noquote() << "[E2E DEMO] Plaintext content: <YOK - "
+                             "server'da decrypt edilemez>";
+        qInfo().noquote() << "";
+    }
+    // === /DEMO LOG ===
 
     for (auto it = m_sessions.begin(); it != m_sessions.end(); ++it) {
         const ClientSession& peer = it.value();
